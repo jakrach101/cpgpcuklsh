@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แนวทางการรักษาโรคเบาหวาน</title>
+    <title>แนวทางการรักษาโรคเบาหวาน ความดันโลหิตสูง และไตเรื้อรัง</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Brilliant Blues (modified for a calmer, professional feel) -->
-    <!-- Application Structure Plan: A multi-section, interactive SPA designed to summarize diabetes treatment guidelines. The primary structure will be a high-level flowchart in the first section, categorizing patients and outlining initial management. Subsequent sections will detail treatment goals, medication principles, and specialist referral criteria. This structure is chosen to provide a logical, top-down overview of treatment, allowing users to drill down into specific areas. Interactive buttons will trigger LLM-generated patient advice or explanations, enhancing usability and contextual understanding. -->
-    <!-- Visualization & Content Choices: Patient Categorization Flow: Goal: Organize/Inform. Viz/Presentation Method: Interactive flowchart using styled HTML divs and Tailwind CSS. Icons are Unicode characters. Interaction: Clickable buttons for LLM-generated advice for each patient group. Justification: Visualizes the decision process for patient grouping and initial management, making complex criteria digestible. No quantitative data for charts here. Treatment Goals: Goal: Inform. Viz/Presentation Method: Structured text and lists (HTML/CSS) summarizing key targets (FBS, HbA1c, BP, Lipids). Interaction: Button for LLM-generated lifestyle advice to achieve targets. Justification: Presents key numerical targets clearly. Medication Principles: Goal: Inform. Viz/Presentation Method: Structured text and lists (HTML/CSS) outlining general medication guidelines (e.g., first-line drugs, considerations for CKD). Interaction: Button for LLM-generated general medication advice. Justification: Summarizes complex pharmacological information concisely. Specialist Referral: Goal: Organize/Inform. Viz/Presentation Method: Structured text and lists (HTML/CSS) outlining criteria for referring to endocrinologists, nephrologists, ophthalmologists, etc. Interaction: Button for LLM-generated advice on specialist consultation. Justification: Provides clear referral pathways. -->
+    <!-- Application Structure Plan: A multi-section SPA with a sticky sidebar navigation. The main content area is scrollable, with each major chronic disease or key management area having its own distinct section. The sidebar allows users to jump to specific sections, enhancing "viewing by topic." Visual proportions are improved by consistent padding, max-widths, and clear section dividers. -->
+    <!-- Visualization & Content Choices: Patient Assessment & Grouping (Diabetes): Flowchart (HTML/CSS). Treatment Goals (DM, HT, Lipids): Structured lists/tables (HTML/CSS). Medication Principles (DM, HT, Lipids): Structured lists/tables (HTML/CSS). Specialist Referral (DM, HT, CKD): Structured lists (HTML/CSS). Diabetes Screening & Diagnosis: Flowchart (HTML/CSS). Hypo/Hyperglycemia Management: Flowcharts (HTML/CSS). Hypertension Diagnosis & Treatment: Flowcharts (HTML/CSS). CKD Diagnosis, Staging, Referral: Structured lists/tables/flowcharts (HTML/CSS). Dyslipidemia Management (Primary/Secondary Prevention, Statin Monitoring): Flowcharts (HTML/CSS). All visual elements (icons, diagrams) are implemented using HTML/CSS/Unicode characters. No SVG or Mermaid JS is used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -86,278 +86,705 @@
             cursor: pointer;
             color: #667EEA;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        th, td {
+            border: 1px solid #E2E8F0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #F8FAFC;
+            font-weight: 600;
+            color: #2D3748;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .nav-link.active {
+            background-color: #EBF4FF;
+            color: #247BA0;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="antialiased">
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-5xl">
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar Navigation -->
+        <nav class="sticky top-0 h-auto md:h-screen w-full md:w-64 bg-white shadow-lg p-4 overflow-y-auto flex-shrink-0">
+            <h2 class="text-xl font-bold text-[#102A43] mb-6 hidden md:block">สารบัญ</h2>
+            <ul class="space-y-2 flex flex-row md:flex-col overflow-x-auto pb-2 md:pb-0">
+                <li><a href="#section-screening" class="nav-link block p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 text-slate-700 whitespace-nowrap">1. คัดกรองเบาหวาน</a></li>
+                <li><a href="#section-dm-assessment" class="nav-link block p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 text-slate-700 whitespace-nowrap">2. ประเมินกลุ่มผู้ป่วย DM</a></li>
+                <li><a href="#section-dm-goals" class="nav-link block p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 text-slate-700 whitespace-nowrap">3. เป้าหมายรักษา DM</a></li>
+                <li><a href="#section-hypo-hyper" class="nav-link block p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 text-slate-700 whitespace-nowrap">4. น้ำตาลต่ำ/สูง</a></li>
+                <li><a href="#section-ht-management" class="nav-link block p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 text-slate-700 whitespace-nowrap">5. รักษาความดันโลหิตสูง</a></li>
+                <li><a href="#section-ckd-management" class="nav-link block p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 text-slate-700 whitespace-nowrap">6. ดูแลโรคไตเรื้อรัง (CKD)</a></li>
+                <li><a href="#section-dyslipidemia" class="nav-link block p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 text-slate-700 whitespace-nowrap">7. รักษาไขมันผิดปกติ</a></li>
+                <li><a href="#section-lab-monitoring" class="nav-link block p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 text-slate-700 whitespace-nowrap">8. ติดตาม LAB ประจำปี</a></li>
+            </ul>
+        </nav>
 
-        <header class="text-center mb-12">
-            <h1 class="text-3xl md:text-5xl font-bold text-[#102A43] mb-3">แนวทางการรักษาโรคเบาหวาน</h1>
-            <p class="text-xl md:text-2xl font-medium text-[#247BA0]">สรุปสำหรับผู้ปฏิบัติงาน</p>
-            <p class="mt-4 text-lg text-slate-600">แอปพลิเคชันนี้สรุปขั้นตอนและหลักการสำคัญในการดูแลรักษาผู้ป่วยเบาหวาน เพื่อให้การดูแลเป็นไปอย่างมีประสิทธิภาพและครบวงจร</p>
-        </header>
+        <!-- Main Content Area -->
+        <div class="flex-grow p-4 sm:p-6 lg:p-8 max-w-full md:max-w-[calc(100%-16rem)]">
+            <header class="text-center mb-12">
+                <h1 class="text-3xl md:text-5xl font-bold text-[#102A43] mb-3">แนวทางการดูแลผู้ป่วยโรคเบาหวาน ความดันโลหิตสูง และไตเรื้อรัง</h1>
+                <p class="text-xl md:text-2xl font-medium text-[#247BA0]">สรุปสำหรับผู้ปฏิบัติงาน (ปี 2567)</p>
+                <p class="mt-4 text-lg text-slate-600">แอปพลิเคชันนี้สรุปขั้นตอนและหลักการสำคัญในการดูแลรักษาผู้ป่วยเบาหวาน ความดันโลหิตสูง และโรคไตเรื้อรัง เพื่อให้การดูแลเป็นไปอย่างมีประสิทธิภาพและครบวงจร</p>
+            </header>
 
-        <main class="flex flex-col items-center space-y-12">
+            <main class="flex flex-col items-center space-y-12">
 
-            <!-- Section 1: Patient Assessment and Grouping Flowchart -->
-            <section class="w-full bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">📊</span>1. การประเมินและแบ่งกลุ่มผู้ป่วย</h2>
-                <p class="text-base text-slate-600 mb-6">ผู้ป่วยเบาหวานจะได้รับการประเมินศักยภาพในการดูแลตนเอง เพื่อจัดกลุ่มและวางแผนการดูแลที่เหมาะสม</p>
+                <!-- Section 1: Diabetes Screening and Diagnosis Flowchart -->
+                <section id="section-screening" class="w-full bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">🔍</span>1. แนวทางการคัดกรองและวินิจฉัยโรคเบาหวาน (ปี 2567)</h2>
+                    <p class="text-base text-slate-600 mb-6">สรุปขั้นตอนการคัดกรองและวินิจฉัยโรคเบาหวานตามแนวทางปี 2567 สำหรับประชากร 35 ปีขึ้นไป</p>
 
-                <div class="flex flex-col items-center space-y-6">
-                    <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
-                        ผู้ป่วยเบาหวาน
-                    </div>
-                    <div class="flow-connector h-8"></div>
-                    <div class="flow-decision p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
-                        ประเมินศักยภาพในการดูแลตนเอง<br>(ตามเกณฑ์ FBS, HbA1c, BP, ภาวะแทรกซ้อน)
-                    </div>
-                    <div class="flow-connector h-8"></div>
+                    <div class="flex flex-col items-center space-y-6">
+                        <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            ประชากรอายุ 35 ปีขึ้นไป <br>ที่ยังไม่ได้รับการวินิจฉัยโรคเบาหวาน
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="flow-decision p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            ตรวจคัดกรอง
+                        </div>
+                        <div class="flow-connector h-8"></div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                        <!-- Group 1: Green -->
-                        <div class="flex flex-col items-center">
-                            <div class="flow-node p-4 rounded-lg text-center w-full bg-green-100 border-green-500">
-                                <h3 class="font-bold text-lg text-green-700">กลุ่มป่วยที่ 1 (สีเขียว)</h3>
-                                <p class="text-sm text-green-600">ควบคุมโรคได้ดี (FBS &lt; 154, HbA1c &lt; 7, BP &lt; 130/80)</p>
-                                <ul class="text-xs text-left mt-2 list-disc list-inside text-green-800">
-                                    <li>ให้คำปรึกษาโดยพยาบาล/นวก.</li>
-                                    <li>รับยาเดิม</li>
-                                    <li>พบแพทย์ปีละ 1 ครั้ง</li>
-                                </ul>
-                                <button onclick="generatePatientAdvice('เขียนคำแนะนำสั้นๆ สำหรับผู้ป่วยเบาหวานกลุ่มสีเขียว ที่ควบคุมโรคได้ดี เพื่อรักษาสภาพที่ดีนี้ไว้ (ประมาณ 3-4 บรรทัด)', 'คำแนะนำผู้ป่วย: กลุ่มสีเขียว')" class="mt-3 px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-xs">
-                                    ✨ คำแนะนำผู้ป่วย
-                                </button>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-4 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h3 class="font-bold text-lg text-blue-700">วิธีที่ 1: งดอาหารก่อนตรวจ 8 ชม. (FPG/FCBG)</h3>
+                                    <ul class="text-sm text-left mt-2 list-disc list-inside text-blue-800">
+                                        <li>&lt; 100 mg/dl: กลุ่มปกติ</li>
+                                        <li>100-125 mg/dl: กลุ่มเสี่ยง</li>
+                                        <li>&ge; 126 mg/dl: กลุ่มสงสัยป่วย</li>
+                                    </ul>
+                                </div>
+                                <div class="flow-connector h-8"></div>
+                                <div class="flow-decision p-4 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h3 class="font-bold text-lg text-blue-700">ผล: กลุ่มเสี่ยง</h3>
+                                    <p class="text-sm text-blue-600">FPG/FCBG 100-109 mg/dl: LSM + ติดตาม FCBG ทุก 6 เดือน</p>
+                                    <p class="text-sm text-blue-600">FPG/FCBG 110-125 mg/dl: LSM + ติดตาม FCBG ทุก 3 เดือน</p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-4 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h3 class="font-bold text-lg text-blue-700">วิธีที่ 2: ตรวจวัดระดับน้ำตาลแบบ Random</h3>
+                                    <ul class="text-sm text-left mt-2 list-disc list-inside text-blue-800">
+                                        <li>&ge; 200 mg/dl + Symptom: วินิจฉัยเบาหวานได้เลย</li>
+                                        <li>&lt; 200 mg/dl: พิจารณาตรวจยืนยันด้วย FPG ภายใน 1-180 วัน</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Group 2: Yellow -->
-                        <div class="flex flex-col items-center">
-                            <div class="flow-node p-4 rounded-lg text-center w-full bg-yellow-100 border-yellow-500">
-                                <h3 class="font-bold text-lg text-yellow-700">กลุ่มป่วยที่ 2 (สีเหลือง)</h3>
-                                <p class="text-sm text-yellow-600">ควบคุมได้ปานกลาง (HbA1c 7-7.9, FBS 155-182, BP 131-159/80-99)</p>
-                                <ul class="text-xs text-left mt-2 list-disc list-inside text-yellow-800">
-                                    <li>ให้คำปรึกษาโดยพยาบาล/นวก.</li>
-                                    <li>รับยาเดิม</li>
-                                    <li>พบแพทย์เมื่อสีเหลืองติดต่อกัน 2 ครั้ง</li>
-                                    <li>จัดกิจกรรม Self-help group/ปรับพฤติกรรม</li>
-                                </ul>
-                                <button onclick="generatePatientAdvice('เขียนคำแนะนำสั้นๆ สำหรับผู้ป่วยเบาหวานกลุ่มสีเหลือง ที่ควบคุมโรคได้ปานกลาง ควรปรับปรุงอะไรบ้าง (ประมาณ 3-4 บรรทัด)', 'คำแนะนำผู้ป่วย: กลุ่มสีเหลือง')" class="mt-3 px-3 py-1 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors duration-200 text-xs">
-                                    ✨ คำแนะนำผู้ป่วย
-                                </button>
-                            </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md bg-teal-100 border-teal-500">
+                            วินิจฉัยโรคเบาหวาน <br>ขึ้นทะเบียนและส่งพบแพทย์
                         </div>
+                    </div>
+                </section>
 
-                        <!-- Group 3: Red -->
-                        <div class="flex flex-col items-center">
-                            <div class="flow-node p-4 rounded-lg text-center w-full bg-red-100 border-red-500">
-                                <h3 class="font-bold text-lg text-red-700">กลุ่มป่วยที่ 3 (สีแดง)</h3>
-                                <p class="text-sm text-red-600">ควบคุมไม่ได้/มีภาวะแทรกซ้อน (HbA1c &gt; 8, FBS &gt; 183, BP &gt; 160/110, มีภาวะแทรกซ้อน)</p>
-                                <ul class="text-xs text-left mt-2 list-disc list-inside text-red-800">
-                                    <li>พบแพทย์ทุกครั้ง</li>
-                                    <li>จัดกิจกรรม Self-help group/ปรับพฤติกรรม</li>
-                                    <li>วางแผนเยี่ยมบ้าน</li>
-                                    <li>*ผู้ฉีดอินซูลิน/มีภาวะแทรกซ้อนชัดเจน พบแพทย์ทุกครั้ง</li>
-                                </ul>
-                                <button onclick="generatePatientAdvice('เขียนคำแนะนำสั้นๆ สำหรับผู้ป่วยเบาหวานกลุ่มสีแดง ที่ควบคุมโรคไม่ได้/มีภาวะแทรกซ้อน ควรทำอย่างไรบ้าง (ประมาณ 3-4 บรรทัด)', 'คำแนะนำผู้ป่วย: กลุ่มสีแดง')" class="mt-3 px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 text-xs">
-                                    ✨ คำแนะนำผู้ป่วย
-                                </button>
+                <!-- Section 2: Patient Assessment and Grouping (Diabetes) -->
+                <section id="section-dm-assessment" class="w-full bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">📊</span>2. การประเมินและแบ่งกลุ่มผู้ป่วยเบาหวาน</h2>
+                    <p class="text-base text-slate-600 mb-6">ผู้ป่วยเบาหวานจะได้รับการประเมินศักยภาพในการดูแลตนเอง เพื่อจัดกลุ่มและวางแผนการดูแลที่เหมาะสม</p>
+
+                    <div class="flex flex-col items-center space-y-6">
+                        <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            ผู้ป่วยเบาหวาน
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="flow-decision p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            ประเมินศักยภาพในการดูแลตนเอง<br>(ตามเกณฑ์ FBS, HbA1c, BP, ภาวะแทรกซ้อน)
+                        </div>
+                        <div class="flow-connector h-8"></div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                            <!-- Group 1: Green -->
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-4 rounded-lg text-center w-full bg-green-100 border-green-500">
+                                    <h3 class="font-bold text-lg text-green-700">กลุ่มป่วยที่ 1 (สีเขียว)</h3>
+                                    <p class="text-sm text-green-600">ควบคุมโรคได้ดี (FBS &lt; 154, HbA1c &lt; 7, BP &lt; 130/80)</p>
+                                    <ul class="text-xs text-left mt-2 list-disc list-inside text-green-800">
+                                        <li>ให้คำปรึกษาโดยพยาบาล/นวก.</li>
+                                        <li>รับยาเดิม</li>
+                                        <li>พบแพทย์ปีละ 1 ครั้ง</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Group 2: Yellow -->
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-4 rounded-lg text-center w-full bg-yellow-100 border-yellow-500">
+                                    <h3 class="font-bold text-lg text-yellow-700">กลุ่มป่วยที่ 2 (สีเหลือง)</h3>
+                                    <p class="text-sm text-yellow-600">ควบคุมได้ปานกลาง (HbA1c 7-7.9, FBS 155-182, BP 131-159/80-99)</p>
+                                    <ul class="text-xs text-left mt-2 list-disc list-inside text-yellow-800">
+                                        <li>ให้คำปรึกษาโดยพยาบาล/นวก.</li>
+                                        <li>รับยาเดิม</li>
+                                        <li>พบแพทย์เมื่อสีเหลืองติดต่อกัน 2 ครั้ง</li>
+                                        <li>จัดกิจกรรม Self-help group/ปรับพฤติกรรม</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Group 3: Red -->
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-4 rounded-lg text-center w-full bg-red-100 border-red-500">
+                                    <h3 class="font-bold text-lg text-red-700">กลุ่มป่วยที่ 3 (สีแดง)</h3>
+                                    <p class="text-sm text-red-600">ควบคุมไม่ได้/มีภาวะแทรกซ้อน (HbA1c &gt; 8, FBS &gt; 183, BP &gt; 160/110, มีภาวะแทรกซ้อน)</p>
+                                    <ul class="text-xs text-left mt-2 list-disc list-inside text-red-800">
+                                        <li>พบแพทย์ทุกครั้ง</li>
+                                        <li>จัดกิจกรรม Self-help group/ปรับพฤติกรรม</li>
+                                        <li>วางแผนเยี่ยมบ้าน</li>
+                                        <li>*ผู้ฉีดอินซูลิน/มีภาวะแทรกซ้อนชัดเจน พบแพทย์ทุกครั้ง</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Section 2: Treatment Goals -->
-            <section class="w-full bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">🎯</span>2. เป้าหมายของการรักษาโรคเบาหวาน</h2>
-                <p class="text-base text-slate-600 mb-6">การกำหนดเป้าหมายการควบคุมเบาหวานควรเป็นรายบุคคล โดยคำนึงถึงอายุ ระยะเวลาที่เป็นโรค และภาวะแทรกซ้อน</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="p-4 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-2">เป้าหมายทั่วไป (ผู้ใหญ่ไม่ตั้งครรภ์)</h3>
+                <!-- Section 3: Treatment Goals (Updated with more detail from CPG DM HT 2567.pdf Page 7-8) -->
+                <section id="section-dm-goals" class="w-full bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">🎯</span>3. เป้าหมายของการรักษาโรคเบาหวาน</h2>
+                    <p class="text-base text-slate-600 mb-6">การกำหนดเป้าหมายการควบคุมเบาหวานควรเป็นรายบุคคล โดยคำนึงถึงอายุ ระยะเวลาที่เป็นโรค และภาวะแทรกซ้อน</p>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>การควบคุมเบาหวาน</th>
+                                    <th>ควบคุมเข้มงวดมาก</th>
+                                    <th>ควบคุมเข้มงวด</th>
+                                    <th>ควบคุมไม่เข้มงวด</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ระดับน้ำตาลในเลือดขณะอดอาหาร</td>
+                                    <td>70-110 มก./ดล.</td>
+                                    <td>90-130 มก./ดล.</td>
+                                    <td>ใกล้เคียง 130 มก./ดล.</td>
+                                </tr>
+                                <tr>
+                                    <td>ระดับน้ำตาลในเลือดหลังอาหาร 2 ชั่วโมง</td>
+                                    <td>&lt; 140 มก./ดล.</td>
+                                    <td>&lt;180 มก./ดล.</td>
+                                    <td>&lt;180 มก./ดล.</td>
+                                </tr>
+                                <tr>
+                                    <td>HbA1C</td>
+                                    <td>&lt; 6.5%</td>
+                                    <td>&lt;7%</td>
+                                    <td>7-8%</td>
+                                </tr>
+                                <tr>
+                                    <td>เป้าหมายสำหรับผู้ป่วยแต่ละราย</td>
+                                    <td>อายุน้อย/เป็นมาไม่นาน ไม่มีภาวะแทรกซ้อนหรือโรคร่วมอื่น</td>
+                                    <td>ผู้ป่วยสูงอายุที่มีสุขภาพดี หรือไม่มีโรคร่วมอื่น</td>
+                                    <td>ผู้สูงอายุที่ไม่สามารถดูแลตนเองได้, มีภาวะ hypoglycemia บ่อยๆ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-blue-50 rounded-md border border-blue-200">
+                        <h3 class="font-bold text-lg text-[#247BA0] mb-2">เป้าหมายปัจจัยเสี่ยงอื่นๆ</h3>
                         <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
-                            <li>ระดับน้ำตาลในเลือดขณะอดอาหาร (FBS): 80-130 มก./ดล.</li>
-                            <li>ระดับน้ำตาลสูงสุดหลังอาหาร: &lt;180 มก./ดล.</li>
-                            <li>HbA1c: &lt;7.0 %</li>
+                            <li>ระดับไขมัน LDL-C: &lt;100 มก./ดล. (หรือ &lt;70 ถ้ามีโรคหลอดเลือดหัวใจ)</li>
+                            <li>ระดับไตรกลีเซอไรด์: &lt;150 มก./ดล.</li>
+                            <li>ความดันโลหิต: &lt;130/80 มม.ปรอท</li>
+                            <li>ดัชนีมวลกาย (BMI): 18.5-22.9 กก./ม.2</li>
+                            <li>งดสูบบุหรี่, ออกกำลังกายสม่ำเสมอ</li>
                         </ul>
                     </div>
-                    <div class="p-4 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-2">เป้าหมายสำหรับผู้ป่วยอายุ &gt; 65 ปี</h3>
-                        <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
-                            <li>แข็งแรง: HbA1c &lt;7.0 – 7.5 %</li>
-                            <li>มีโรคร่วมมาก: HbA1c &lt; 8.0 %</li>
-                            <li>โรคร่วมระยะสุดท้าย/ช่วยเหลือตนเองไม่ได้: ไม่กำหนดเป้าหมาย HbA1c (เน้นเลี่ยงภาวะน้ำตาลต่ำ/สูงจนมีอาการ)</li>
-                        </ul>
-                    </div>
-                </div>
+                </section>
 
-                <div class="mt-6 p-4 bg-blue-50 rounded-md border border-blue-200">
-                    <h3 class="font-bold text-lg text-[#247BA0] mb-2">เป้าหมายปัจจัยเสี่ยงอื่นๆ</h3>
-                    <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
-                        <li>ระดับไขมัน LDL-C: &lt;100 มก./ดล. (หรือ &lt;70 ถ้ามีโรคหลอดเลือดหัวใจ)</li>
-                        <li>ระดับไตรกลีเซอไรด์: &lt;150 มก./ดล.</li>
-                        <li>ความดันโลหิต: &lt;130/80 มม.ปรอท</li>
-                        <li>ดัชนีมวลกาย (BMI): 18.5-22.9 กก./ม.2</li>
-                        <li>งดสูบบุหรี่, ออกกำลังกายสม่ำเสมอ</li>
-                    </ul>
-                </div>
-                <button onclick="generatePatientAdvice('เขียนคำแนะนำสั้นๆ สำหรับผู้ป่วยเบาหวานเกี่ยวกับพฤติกรรมการใช้ชีวิตและการควบคุมปัจจัยเสี่ยงต่างๆ เพื่อให้บรรลุเป้าหมายการรักษา (ประมาณ 4-5 บรรทัด)', 'คำแนะนำผู้ป่วย: การบรรลุเป้าหมายการรักษา')" class="mt-6 px-4 py-2 bg-[#667EEA] text-white rounded-md hover:bg-[#5A67D8] transition-colors duration-200 text-sm w-full">
-                    ✨ สร้างคำแนะนำการปฏิบัติตัวเพื่อบรรลุเป้าหมาย
-                </button>
-            </section>
+                <!-- Section 4: Hypo/Hyperglycemia Management -->
+                <section id="section-hypo-hyper" class="w-full bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">🚨</span>4. แนวทางการดูแลผู้ป่วยภาวะน้ำตาลต่ำ/สูง</h2>
+                    <p class="text-base text-slate-600 mb-6">แนวทางปฏิบัติสำหรับการดูแลผู้ป่วยที่มีภาวะน้ำตาลในเลือดต่ำ (Hypoglycemia) และน้ำตาลในเลือดสูง (Hyperglycemia) สำหรับ PCU/รพ.สต.</p>
 
-            <!-- Section 3: Medication Principles -->
-            <section class="w-full bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">💊</span>3. หลักการใช้ยารักษาเบาหวาน</h2>
-                <p class="text-base text-slate-600 mb-6">การเลือกใช้ยาขึ้นอยู่กับสภาพผู้ป่วยแต่ละราย และควรปรับยาตามการตอบสนองและภาวะแทรกซ้อน</p>
-                
-                <div class="space-y-4 text-slate-700">
-                    <div class="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-1">ยาตัวแรก:</h3>
-                        <p class="text-sm">โดยทั่วไปแนะนำ <span class="font-bold">Metformin</span> เป็นยาตัวแรก (ระดับ A)</p>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-1">การเพิ่มยาเมื่อ Metformin ไม่ได้ผล:</h3>
-                        <p class="text-sm">พิจารณาเพิ่ม GLP-1 receptor agonist หรือ Basal insulin (ระดับ A)</p>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-1">การใช้อินซูลิน:</h3>
-                        <p class="text-sm">ควรเปลี่ยนเป็นอินซูลินทันทีหากยาเม็ดและการควบคุมอาหารไม่ได้ผล (ระดับ B) หรือใช้ตั้งแต่แรกหากจำเป็น</p>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-1">ข้อควรระวังในผู้ป่วยโรคไตเรื้อรัง (CKD):</h3>
-                        <p class="text-sm">ต้องปรับขนาดยาหลายชนิด (เช่น Metformin, Sulfonylurea บางตัว) และพิจารณาการใช้อินซูลินโดยลดขนาดเริ่มต้น</p>
-                    </div>
-                </div>
-                <button onclick="generatePatientAdvice('เขียนคำแนะนำสั้นๆ ง่ายๆ สำหรับผู้ป่วยเบาหวานเกี่ยวกับหลักการใช้ยาเบาหวานทั่วไป และความสำคัญของการใช้ยาตามแพทย์สั่ง (ประมาณ 4-5 บรรทัด)', 'คำแนะนำผู้ป่วย: หลักการใช้ยาเบาหวาน')" class="mt-6 px-4 py-2 bg-[#667EEA] text-white rounded-md hover:bg-[#5A67D8] transition-colors duration-200 text-sm w-full">
-                    ✨ สร้างคำแนะนำทั่วไปเกี่ยวกับการใช้ยา
-                </button>
-            </section>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Hypoglycemia -->
+                        <div class="flex flex-col items-center space-y-4 p-4 rounded-lg bg-blue-50 border-blue-200">
+                            <h3 class="font-bold text-xl text-[#247BA0]">ภาวะน้ำตาลในเลือดต่ำ (Hypoglycemia)</h3>
+                            <div class="flow-node p-3 rounded-lg text-center w-full">เจาะ CBG ได้ &le; 70 mg%</div>
+                            <div class="flow-connector h-8"></div>
+                            <div class="flow-decision p-3 rounded-lg text-center w-full">
+                                <p class="font-bold">Conscious ดี?</p>
+                            </div>
+                            <div class="flex justify-around w-full">
+                                <div class="flex flex-col items-center w-1/2">
+                                    <span class="text-sm font-bold text-green-600">ใช่</span>
+                                    <div class="flow-branch-line-down h-6"></div>
+                                    <div class="flow-node p-2 rounded-md text-center text-sm w-full">ให้ดื่ม 50% glucose 30 ml หรือน้ำหวาน/น้ำอัดลม/น้ำส้ม/น้ำผึ้ง</div>
+                                    <div class="flow-connector h-6"></div>
+                                    <div class="flow-node p-2 rounded-md text-center text-sm w-full">เจาะ CBG หลังดื่ม 15 นาที</div>
+                                    <div class="flow-connector h-6"></div>
+                                    <div class="flow-decision p-2 rounded-md text-center text-sm w-full">
+                                        <p class="font-bold">&le; 70 mg%?</p>
+                                    </div>
+                                    <div class="flex justify-around w-full">
+                                        <div class="flex flex-col items-center w-1/2">
+                                            <span class="text-sm font-bold text-red-600">ใช่</span>
+                                            <div class="flow-branch-line-down h-6"></div>
+                                            <div class="flow-node p-2 rounded-md text-center text-xs w-full">ให้ 50% glucose 50 ml IV push, Notify แพทย์, IV fluid, Refer รพ.</div>
+                                        </div>
+                                        <div class="flex flex-col items-center w-1/2">
+                                            <span class="text-sm font-bold text-green-600">ไม่</span>
+                                            <div class="flow-branch-line-down h-6"></div>
+                                            <div class="flow-node p-2 rounded-md text-center text-xs w-full">ป้องกันน้ำตาลต่ำซ้ำ, หาสาเหตุ, ให้ Education</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-center w-1/2">
+                                    <span class="text-sm font-bold text-red-600">ไม่ (Unconscious)</span>
+                                    <div class="flow-branch-line-down h-6"></div>
+                                    <div class="flow-node p-2 rounded-md text-center text-sm w-full">ให้ 50% glucose 50 ml IV push, DTX ทันที</div>
+                                    <div class="flow-connector h-6"></div>
+                                    <div class="flow-node p-2 rounded-md text-center text-sm w-full">ประเมิน conscious, V/S, Notify แพทย์, IV fluid, Refer รพ.</div>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Section 4: Specialist Referral -->
-            <section class="w-full bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">➡️</span>4. แนวทางการส่งต่อผู้เชี่ยวชาญ</h2>
-                <p class="text-base text-slate-600 mb-6">เมื่อผู้ป่วยมีภาวะที่ซับซ้อนหรือต้องการการดูแลเฉพาะทาง ควรพิจารณาส่งต่อแพทย์ผู้เชี่ยวชาญ</p>
-                
-                <div class="space-y-4 text-slate-700">
-                    <div class="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-1">แพทย์เฉพาะทางโรคต่อมไร้ท่อ:</h3>
-                        <p class="text-sm">พิจารณาส่งต่อเมื่อการควบคุมน้ำตาลทำได้ยาก มีภาวะน้ำตาลต่ำบ่อย หรือมีข้อสงสัยเกี่ยวกับชนิดของเบาหวาน</p>
+                        <!-- Hyperglycemia -->
+                        <div class="flex flex-col items-center space-y-4 p-4 rounded-lg bg-blue-50 border-blue-200">
+                            <h3 class="font-bold text-xl text-[#247BA0]">ภาวะน้ำตาลในเลือดสูง (Hyperglycemia)</h3>
+                            <div class="grid grid-cols-3 gap-2 w-full">
+                                <div class="flow-node p-2 rounded-lg text-center text-sm">CBG &lt; 250 mg%</div>
+                                <div class="flow-node p-2 rounded-lg text-center text-sm">CBG 250-599 mg%</div>
+                                <div class="flow-node p-2 rounded-lg text-center text-sm">CBG &ge; 600 mg%</div>
+                            </div>
+                            <div class="flow-connector h-8"></div>
+                            <div class="flow-decision p-3 rounded-lg text-center w-full">
+                                <p class="font-bold">ตรวจร่างกายมีอาการและอาการแสดงของ DKA?</p>
+                                <p class="text-xs">(ปวดท้อง, คลื่นไส้, อาเจียน, Kussmaul breathing, หายใจมีกลิ่น acetone, dehydration)</p>
+                            </div>
+                            <div class="flex justify-around w-full">
+                                <div class="flex flex-col items-center w-1/2">
+                                    <span class="text-sm font-bold text-red-600">ไม่ใช่</span>
+                                    <div class="flow-branch-line-down h-6"></div>
+                                    <div class="flow-node p-2 rounded-md text-center text-sm w-full">พิจารณาปรับยาตามความเหมาะสมและรักษาแบบ OPD case</div>
+                                </div>
+                                <div class="flex flex-col items-center w-1/2">
+                                    <span class="text-sm font-bold text-green-600">ใช่</span>
+                                    <div class="flow-branch-line-down h-6"></div>
+                                    <div class="flow-node p-2 rounded-md text-center text-sm w-full">Refer รพ. เพื่อตรวจวินิจฉัยภาวะ DKA</div>
+                                </div>
+                            </div>
+                            <div class="flow-connector h-8"></div>
+                            <div class="flow-node p-2 rounded-md text-center text-sm w-full bg-red-100 border-red-500">
+                                หาก CBG &ge; 600 mg% หรือ DKA: Refer รพ. เพื่อ Admit
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-1">อายุรแพทย์โรคไต:</h3>
-                        <p class="text-sm">เมื่อ eGFR &lt;30 ml/min/1.73 m2 หรือ eGFR 30-45 ml/min/1.73 m2 ร่วมกับมีลักษณะเสี่ยงต่อไตทำงานลดลงอย่างรวดเร็ว</p>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-1">แพทย์เวชศาสตร์ฟื้นฟู (กรณีภาวะแทรกซ้อนที่เท้า):</h3>
-                        <p class="text-sm">เมื่อมีความเสี่ยงต่อการเกิดแผลที่เท้าระดับปานกลางหรือสูง หรือมีแผลเรื้อรังที่เท้า</p>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <h3 class="font-bold text-lg text-[#247BA0] mb-1">จักษุแพทย์ (กรณีภาวะแทรกซ้อนที่ตา):</h3>
-                        <p class="text-sm">เมื่อตรวจพบภาวะจอตาผิดปกติจากเบาหวาน (NPDR, PDR, macular edema) จากการถ่ายภาพจอประสาทตา</p>
-                    </div>
-                </div>
-                <button onclick="generatePatientAdvice('เขียนคำแนะนำสั้นๆ สำหรับผู้ป่วยเบาหวานเกี่ยวกับความสำคัญของการพบแพทย์เฉพาะทางเมื่อมีภาวะแทรกซ้อนต่างๆ และประโยชน์ของการดูแลโดยทีมแพทย์ (ประมาณ 3-4 บรรทัด)', 'คำแนะนำผู้ป่วย: การพบแพทย์เฉพาะทาง')" class="mt-6 px-4 py-2 bg-[#667EEA] text-white rounded-md hover:bg-[#5A67D8] transition-colors duration-200 text-sm w-full">
-                    ✨ สร้างคำแนะนำเมื่อต้องพบแพทย์เฉพาะทาง
-                </button>
-            </section>
+                </section>
 
-        </main>
-        
-        <footer class="text-center mt-16 text-sm text-slate-500">
-            <p>เอกสารนี้จัดทำขึ้นเพื่อเป็นแนวทางสรุปสำหรับผู้ปฏิบัติงาน โปรดอ้างอิงแนวทางเวชปฏิบัติฉบับเต็มประกอบการตัดสินใจทางคลินิก</p>
-        </footer>
+                <!-- Section 5: Hypertension Management -->
+                <section id="section-ht-management" class="w-full bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">❤️</span>5. แนวทางการรักษาโรคความดันโลหิตสูง</h2>
+                    <p class="text-base text-slate-600 mb-6">สรุปแนวทางการวินิจฉัยและรักษาโรคความดันโลหิตสูง รวมถึงการเลือกใช้ยาลดความดันโลหิต</p>
 
-        <!-- Modal for LLM Response -->
-        <div id="advice-modal" class="modal-overlay hidden">
-            <div class="modal-content w-full md:w-2/3 lg:w-1/2">
-                <button class="close-button" onclick="hideModal()">&times;</button>
-                <h3 id="modal-title" class="text-xl font-bold mb-4 text-[#247BA0]"></h3>
-                <div id="modal-content-text" class="text-slate-700 text-base leading-relaxed"></div>
-                <div id="modal-loading" class="hidden text-center mt-4">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#667EEA] inline-block"></div>
-                    <p class="text-slate-500 mt-2">กำลังสร้างคำแนะนำ...</p>
-                </div>
-            </div>
+                    <div class="flex flex-col items-center space-y-6">
+                        <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            ผู้ป่วย
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="flow-decision p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            วัดความดันโลหิต (Office BP)
+                        </div>
+                        <div class="flow-connector h-8"></div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h3 class="font-bold text-lg text-blue-700">BP &ge; 140/90 mmHg (ระดับ 1)</h3>
+                                    <p class="text-sm">Possible HT (R030)</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h3 class="font-bold text-lg text-blue-700">BP &ge; 160/100 mmHg (ระดับ 2)</h3>
+                                    <p class="text-sm">Possible HT (R030)</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h3 class="font-bold text-lg text-blue-700">BP &ge; 180/110 mmHg (ระดับ 3)</h3>
+                                    <p class="text-sm">Possible HT (R030)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="flow-decision p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            HBPM 6-7 วัน
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-green-100 border-green-500">
+                                    <h3 class="font-bold text-lg text-green-700">HBPM &lt; 135/85 mmHg</h3>
+                                    <p class="text-sm">White Coat HT (เฝ้าระวัง, ไม่เริ่มยา)</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-red-100 border-red-500">
+                                    <h3 class="font-bold text-lg text-red-700">HBPM &ge; 135/85 mmHg</h3>
+                                    <p class="text-sm">Definite HT (วินิจฉัยและเริ่มยา)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="flow-decision p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            <p>BP &ge; 180/110 mmHg?</p>
+                        </div>
+                        <div class="flex justify-around w-full">
+                            <div class="flex flex-col items-center w-1/2">
+                                <span class="text-sm font-bold text-green-600">ใช่</span>
+                                <div class="flow-branch-line-down h-6"></div>
+                                <div class="flow-node p-2 rounded-md text-center text-sm w-full">เริ่มยาลดความดัน 2 ชนิด</div>
+                            </div>
+                            <div class="flex flex-col items-center w-1/2">
+                                <span class="text-sm font-bold text-red-600">ไม่</span>
+                                <div class="flow-branch-line-down h-6"></div>
+                                <div class="flow-node p-2 rounded-md text-center text-sm w-full">เริ่มยาลดความดัน 1 ชนิด</div>
+                            </div>
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md bg-teal-100 border-teal-500">
+                            ติดตามและปรับยาจนได้เป้าหมาย
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold mt-8 mb-4 text-[#247BA0]">ยาลดความดันโลหิตที่สำคัญ</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>กลุ่มยา</th>
+                                    <th>ชื่อยา (ตัวอย่าง)</th>
+                                    <th>ข้อดี/ข้อควรระวัง</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ACEIs</td>
+                                    <td>Enalapril</td>
+                                    <td>ไอ, Hyperkalemia, ระวังใน CKD &lt; 15, ห้ามใช้ในคนท้อง</td>
+                                </tr>
+                                <tr>
+                                    <td>ARBs</td>
+                                    <td>Losartan</td>
+                                    <td>ไอน้อยกว่า ACEIs, Hyperkalemia, ระวังใน CKD &lt; 15, ห้ามใช้ในคนท้อง</td>
+                                </tr>
+                                <tr>
+                                    <td>CCBs (DHP)</td>
+                                    <td>Amlodipine, Manidipine</td>
+                                    <td>บวมรอบตาตุ่ม, ใจสั่น, ระวังใน Heart failure (ยกเว้น Amlodipine/Felodipine)</td>
+                                </tr>
+                                <tr>
+                                    <td>Diuretics (Thiazide)</td>
+                                    <td>HCTZ</td>
+                                    <td>Hypo Na/K, Hyper uric/Ca/Glucose/Cholesterol/TG, ไม่เหมาะในเก๊าท์</td>
+                                </tr>
+                                <tr>
+                                    <td>Diuretics (Loop)</td>
+                                    <td>Furosemide (Lasix)</td>
+                                    <td>เหมาะใน HT + eGFR &le; 30, ระวัง Electrolyte abnormalities</td>
+                                </tr>
+                                <tr>
+                                    <td>Beta-blocker</td>
+                                    <td>Atenolol, Metoprolol, Carvedilol</td>
+                                    <td>ไม่เหมาะใน COPD/Asthma, Bradycardia, ห้ามหยุดยากะทันหัน</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Section 6: CKD Management and Referral -->
+                <section id="section-ckd-management" class="w-full bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">💧</span>6. แนวทางการดูแลและส่งต่อผู้ป่วยโรคไตเรื้อรัง (CKD)</h2>
+                    <p class="text-base text-slate-600 mb-6">สรุปเกณฑ์การวินิจฉัย การแบ่งระยะ และแนวทางการส่งต่อผู้ป่วยโรคไตเรื้อรัง</p>
+
+                    <div class="table-container mb-6">
+                        <h3 class="font-bold text-xl text-[#247BA0] mb-2">เกณฑ์การวินิจฉัย CKD</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Criteria (ต้องมี 1 ใน 2 ข้อ)</th>
+                                    <th>คำอธิบาย</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1. มีภาวะไตผิดปกตินาน &gt; 3 เดือน</td>
+                                    <td>UA ผิดปกติ (&gt;2 ครั้งใน 6 เดือน), ภาพรังสีผิดปกติ, พยาธิสภาพผิดปกติ</td>
+                                </tr>
+                                <tr>
+                                    <td>2. GFR &lt; 60 ml/min/1.73m² นาน &gt; 3 เดือน</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container mb-6">
+                        <h3 class="font-bold text-xl text-[#247BA0] mb-2">การแบ่งระยะของ CKD</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ระยะ</th>
+                                    <th>คำจำกัดความ</th>
+                                    <th>GFR (mL/min/1.73m²)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>ไตผิดปกติและ GFR ปกติหรือเพิ่มขึ้น</td><td>&gt;90</td></tr>
+                                <tr><td>2</td><td>ไตผิดปกติและ GFR ลดลงเล็กน้อย</td><td>60-89</td></tr>
+                                <tr><td>3a</td><td>GFR ลดลงปานกลาง</td><td>45-59</td></tr>
+                                <tr><td>3b</td><td>GFR ลดลงปานกลาง</td><td>30-44</td></tr>
+                                <tr><td>4</td><td>GFR ลดลงมาก</td><td>15-29</td></tr>
+                                <tr><td>5</td><td>ไตวายระยะสุดท้าย</td><td>&lt;15 (หรือได้รับการบำบัดทดแทนไต)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="font-bold text-xl text-[#247BA0] mb-4">การส่งต่อผู้ป่วย CKD</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>CKD stage</th>
+                                    <th>Refer เมื่อ</th>
+                                    <th>การเตรียมผู้ป่วยก่อน Refer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CKD stage 3</td>
+                                    <td>GFR ลด &gt;7 ml/min/1.73m²/ปี, HT คุมไม่ได้ (ยา &ge;4 ชนิด), UPCR &gt;1,000 mg/gm, Protein 4+ หลังคุม BP ดี 3 เดือน</td>
+                                    <td>ค่า Cr ย้อนหลัง &ge;3 เดือน, ผล Lab อื่นๆ, Film KUB (ถ้ามี)</td>
+                                </tr>
+                                <tr>
+                                    <td>CKD stage 4</td>
+                                    <td>GFR ลด &gt;7 ml/min/1.73m² ใน 3 เดือน, GFR &lt;20 ml/min/1.73m², มีอาการ/ภาวะแทรกซ้อน (ซีด, บวม, เบื่ออาหาร)</td>
+                                    <td>ผล U/S KUB (ถ้ามี)</td>
+                                </tr>
+                                <tr>
+                                    <td>CKD stage 5</td>
+                                    <td>GFR &lt;15 ml/min/1.73m² (พร้อมญาติที่ตัดสินใจได้)</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Section 7: Dyslipidemia Management -->
+                <section id="section-dyslipidemia" class="w-full bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">📈</span>7. แนวทางการรักษาภาวะไขมันในเลือดผิดปกติ</h2>
+                    <p class="text-base text-slate-600 mb-6">สรุปแนวทางการป้องกันและรักษาภาวะไขมันในเลือดผิดปกติ เพื่อลดความเสี่ยงโรคหัวใจและหลอดเลือด</p>
+
+                    <h3 class="font-bold text-xl text-[#247BA0] mb-4">การป้องกันปฐมภูมิ (Primary prevention)</h3>
+                    <div class="flex flex-col items-center space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                            <!-- No DM / No CKD -->
+                            <div class="flex flex-col items-center p-4 rounded-lg bg-blue-50 border-blue-200">
+                                <h4 class="font-bold text-lg text-blue-700 mb-2">ไม่มี DM / ไม่มี CKD</h4>
+                                <div class="flow-node p-2 rounded-md text-center w-full">Adult &ge; 21 ปี, LDL &ge; 190 mg/dl</div>
+                                <div class="flow-connector h-6"></div>
+                                <div class="flow-node p-2 rounded-md text-center w-full">ปรับพฤติกรรม 3-6 เดือน</div>
+                                <div class="flow-connector h-6"></div>
+                                <div class="flow-node p-2 rounded-md text-center w-full">ไม่ดีขึ้น: เริ่ม High intensity statin (เป้าหมาย LDL &lt; 100 mg/dl)</div>
+                                <div class="flow-connector h-6"></div>
+                                <div class="flow-node p-2 rounded-md text-center w-full">หาก LDL ไม่ถึงเป้าหมายใน 6 เดือน: เพิ่ม Ezetimibe</div>
+                            </div>
+                            <!-- DM -->
+                            <div class="flex flex-col items-center p-4 rounded-lg bg-blue-50 border-blue-200">
+                                <h4 class="font-bold text-lg text-blue-700 mb-2">ผู้ป่วยเบาหวาน (DM)</h4>
+                                <div class="flow-node p-2 rounded-md text-center w-full">อายุ &ge; 40 ปี</div>
+                                <div class="flow-connector h-6"></div>
+                                <div class="grid grid-cols-2 gap-2 w-full">
+                                    <div class="flow-node p-2 rounded-md text-center text-sm">0-1 Risk factor: LSM + Low-intensity statin (LDL &lt; 100)</div>
+                                    <div class="flow-node p-2 rounded-md text-center text-sm">&ge; 2 Risk factors: LSM + Low to moderate intensity statin (LDL &lt; 70)</div>
+                                </div>
+                                <div class="flow-connector h-6"></div>
+                                <div class="flow-node p-2 rounded-md text-center w-full">อายุ &lt; 40 ปี: LSM 3-6 เดือน (LDL &lt; 100) หากไม่ดีขึ้น: Low-intensity statin (LDL &lt; 100)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-xl text-[#247BA0] mt-8 mb-4">การป้องกันทุติยภูมิ (Secondary prevention)</h3>
+                    <div class="flex flex-col items-center space-y-6">
+                        <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            Clinical ASCVD (Atherosclerotic Cardiovascular Disease)
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h4 class="font-bold text-lg text-blue-700">อายุ &le; 75 ปี</h4>
+                                    <p class="text-sm">High intensity statin (เป้าหมาย LDL &lt; 55 mg/dl ใน MI / &lt; 70 mg/dl ใน Stroke)</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h4 class="font-bold text-lg text-blue-700">อายุ &gt; 75 ปี</h4>
+                                    <p class="text-sm">Moderate intensity statin (เป้าหมาย LDL &lt; 55 mg/dl ใน MI / &lt; 70 mg/dl ใน Stroke)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-xl text-[#247BA0] mt-8 mb-4">การติดตามการใช้ยา Statin</h3>
+                    <div class="flex flex-col items-center space-y-6">
+                        <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            หลังรับยา 3 เดือน ติดตาม LAB (LDL-C, AST, ALT)
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h4 class="font-bold text-lg text-blue-700">LDL-C ได้เป้าหมาย</h4>
+                                    <p class="text-sm">ติดตามทุก 1 ปี</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h4 class="font-bold text-lg text-blue-700">AST, ALT เพิ่ม &ge; 3 เท่า</h4>
+                                    <p class="text-sm">ลดขนาดยา/หยุดยาชั่วคราว, ตรวจซ้ำ 4-6 สัปดาห์</p>
+                                    <div class="flow-connector h-6"></div>
+                                    <p class="text-sm">ปกติ: เริ่มยาใหม่/เพิ่มยาอีกครั้ง</p>
+                                    <p class="text-sm">ผิดปกติ: หาสาเหตุตับอักเสบอื่นๆ</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="flow-node p-4 rounded-lg text-center font-bold text-lg w-full max-w-md">
+                            อาการปวดกล้ามเนื้อ
+                        </div>
+                        <div class="flow-connector h-8"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h4 class="font-bold text-lg text-blue-700">Myalgia (เจาะ CK ปกติ)</h4>
+                                    <p class="text-sm">หยุดยาจะหายปวด ไม่อันตราย</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h4 class="font-bold text-lg text-blue-700">Myositis (เจาะ CK &lt; 10 เท่า)</h4>
+                                    <p class="text-sm">หยุดยาชั่วคราว, ติดตาม CK 1-2 เดือน, เริ่มยาใหม่โดยลดขนาด/เปลี่ยนตัวอื่น</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="flow-node p-3 rounded-lg text-center w-full bg-blue-50 border-blue-200">
+                                    <h4 class="font-bold text-lg text-blue-700">Rhabdomyolysis (เจาะ CK &ge; 10 เท่า)</h4>
+                                    <p class="text-sm">หยุดยา Statin ถาวร, ส่งพบแพทย์รักษา</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 8: Annual Lab Monitoring -->
+                <section id="section-lab-monitoring" class="w-full bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold mb-6 text-[#102A43] flex items-center"><span class="text-3xl mr-3">🔬</span>8. สรุปการติดตามตรวจ LAB โรคเรื้อรังประจำปี</h2>
+                    <p class="text-base text-slate-600 mb-6">รายการตรวจทางห้องปฏิบัติการที่ควรติดตามประจำปีสำหรับผู้ป่วยโรคเบาหวาน ความดันโลหิตสูง และโรคไตเรื้อรัง</p>
+
+                    <div class="table-container mb-6">
+                        <h3 class="font-bold text-xl text-[#247BA0] mb-2">LAB DM</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>รายการตรวจ</th>
+                                    <th>ความถี่</th>
+                                    <th>หมายเหตุ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>FBS, Cr และ eGFR, Lipid Profile, HbA1C, MAU</td><td>ทุก 1 ปี</td><td></td></tr>
+                                <tr><td>AST, ALT</td><td>ตามความเหมาะสม</td><td>ในผู้ป่วย DM ที่กินยา Statins, Pioglitazone</td></tr>
+                                <tr><td>K</td><td>ตามความเหมาะสม</td><td>ในผู้ป่วยที่กินยา Enalapril, Losartan</td></tr>
+                                <tr><td>Uric acid, Electrolyte</td><td>ตามความเหมาะสม</td><td>ในผู้ป่วยที่กินยาขับปัสสาวะ</td></tr>
+                                <tr><td>ตรวจจอประสาทตา, ตรวจเท้า, ตรวจสุขภาพช่องปาก</td><td>ทุก 1 ปี</td><td></td></tr>
+                                <tr><td>CBC, Uric acid</td><td>ตามระยะ CKD</td><td>เพิ่มใน CKD ทุกระยะ</td></tr>
+                                <tr><td>Electrolyte</td><td>ตามระยะ CKD</td><td>เพิ่มใน CKD stage 3b</td></tr>
+                                <tr><td>Electrolyte, Ca, PO4, Albumin</td><td>ตามระยะ CKD</td><td>เพิ่มใน CKD stage 4</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <h3 class="font-bold text-xl text-[#247BA0] mb-2">LAB HT</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>รายการตรวจ</th>
+                                    <th>ความถี่</th>
+                                    <th>หมายเหตุ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>FBS, Cr และ eGFR, Lipid Profile, UA</td><td>ทุก 1 ปี</td><td></td></tr>
+                                <tr><td>AST, ALT</td><td>ตามความเหมาะสม</td><td>ในผู้ป่วยที่กินยา statin</td></tr>
+                                <tr><td>K</td><td>ตามความเหมาะสม</td><td>ในผู้ป่วยที่กินยา Enalapril, Losartan</td></tr>
+                                <tr><td>Uric acid, Electrolyte</td><td>ตามความเหมาะสม</td><td>ในผู้ป่วยที่กินยาขับปัสสาวะ</td></tr>
+                                <tr><td>CBC, Uric acid</td><td>ตามระยะ CKD</td><td>เพิ่มใน CKD ทุกระยะ</td></tr>
+                                <tr><td>Electrolyte</td><td>ตามระยะ CKD</td><td>เพิ่มใน CKD stage 3b</td></tr>
+                                <tr><td>Electrolyte, Ca, PO4, Albumin</td><td>ตามระยะ CKD</td><td>เพิ่มใน CKD stage 4</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </main>
+            
+            <footer class="text-center mt-16 text-sm text-slate-500">
+                <p>เอกสารนี้จัดทำขึ้นเพื่อเป็นแนวทางสรุปสำหรับผู้ปฏิบัติงาน โปรดอ้างอิงแนวทางเวชปฏิบัติฉบับเต็มประกอบการตัดสินใจทางคลินิก</p>
+                <p>ข้อมูลอ้างอิง: แนวทางการดูแลผู้ป่วยโรคเบาหวาน ความดันโลหิตสูง โรคไตเรื้อรัง ปี 2567 เครือข่ายบริการสุขภาพโรงพยาบาลสวรรค์ประชารักษ์</p>
+            </footer>
         </div>
     </div>
 
     <script>
-        const adviceModal = document.getElementById('advice-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalContentText = document.getElementById('modal-content-text');
-        const modalLoading = document.getElementById('modal-loading');
+        // JavaScript for sticky navigation active state
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
 
-        function showModal(title, content) {
-            modalTitle.textContent = title;
-            modalContentText.innerHTML = content;
-            adviceModal.classList.remove('hidden');
-        }
-
-        function hideModal() {
-            adviceModal.classList.add('hidden');
-            modalContentText.innerHTML = '';
-            modalLoading.classList.add('hidden');
-        }
-
-        async function generatePatientAdvice(promptText, title) {
-            showModal(title, '');
-            modalContentText.classList.add('hidden');
-            modalLoading.classList.remove('hidden');
-
-            let chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: promptText }] });
-            const payload = { contents: chatHistory };
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    modalContentText.innerHTML = text.replace(/\n/g, '<br>');
-                } else {
-                    modalContentText.textContent = 'ไม่สามารถสร้างคำแนะนำได้ในขณะนี้ โปรดลองอีกครั้ง';
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 100 && pageYOffset < sectionTop + sectionHeight - 100) {
+                    current = section.getAttribute('id');
                 }
-            } catch (error) {
-                modalContentText.textContent = `เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`;
-            } finally {
-                modalLoading.classList.add('hidden');
-                modalContentText.classList.remove('hidden');
-            }
-        }
+            });
 
-        // LLM buttons for patient groups
-        // Handled by inline onclick attributes for simplicity in this structure
-
-        // LLM button for Treatment Goals
-        document.querySelector('section:nth-of-type(2) button').addEventListener('click', () => {
-            const prompt = "เขียนคำแนะนำสั้นๆ สำหรับผู้ป่วยเบาหวานเกี่ยวกับพฤติกรรมการใช้ชีวิตและการควบคุมปัจจัยเสี่ยงต่างๆ เพื่อให้บรรลุเป้าหมายการรักษา (ประมาณ 4-5 บรรทัด)";
-            generatePatientAdvice(prompt, "คำแนะนำผู้ป่วย: การบรรลุเป้าหมายการรักษา");
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
         });
 
-        // LLM button for Medication Principles
-        document.querySelector('section:nth-of-type(3) button').addEventListener('click', () => {
-            const prompt = "เขียนคำแนะนำสั้นๆ ง่ายๆ สำหรับผู้ป่วยเบาหวานเกี่ยวกับหลักการใช้ยาเบาหวานทั่วไป และความสำคัญของการใช้ยาตามแพทย์สั่ง (ประมาณ 4-5 บรรทัด)";
-            generatePatientAdvice(prompt, "คำแนะนำผู้ป่วย: หลักการใช้ยาเบาหวาน");
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
         });
-
-        // LLM button for Specialist Referral
-        document.querySelector('section:nth-of-type(4) button').addEventListener('click', () => {
-            const prompt = "เขียนคำแนะนำสั้นๆ สำหรับผู้ป่วยเบาหวานเกี่ยวกับความสำคัญของการพบแพทย์เฉพาะทางเมื่อมีภาวะแทรกซ้อนต่างๆ และประโยชน์ของการดูแลโดยทีมแพทย์ (ประมาณ 3-4 บรรทัด)";
-            generatePatientAdvice(prompt, "คำแนะนำผู้ป่วย: การพบแพทย์เฉพาะทาง");
-        });
-
     </script>
 </body>
 </html>
-
